@@ -20,7 +20,7 @@ def get_columns():
 				"fieldname": "batch_id",
 				"fieldtype": "Link",
 				"options": "batch",
-				"width": 150,
+				"width": 250,
 			},
 			{
 				"label": "Item Name",
@@ -35,6 +35,11 @@ def get_columns():
 			{
 				"label": "UOM",
 				"fieldname": "stock_uom",
+				"width": 100,
+			},
+			{
+				"label": "Percent",
+				"fieldname": "avg_percent",
 				"width": 100,
 			},
     ]
@@ -53,22 +58,25 @@ def get_filtered_stock_entries(filters):
 			else:
 				average[item['item_code']]["transfer_qty"] += item["transfer_qty"]
 			average[item['item_code']]["transfer_qty"] = flt(average[item['item_code']]["transfer_qty"],precision)
+	average = list(average.values())
 	main = 0
 	diff = 0
-	for item in average.values():
-		if item["item_code"] == filters.item_code:
-			main = item["transfer_qty"]
+	for i in range(len(average)):
+		if average[i]["item_code"] == filters.item_code:
+			main = average[i]["transfer_qty"]
 		else:
-			diff += item["transfer_qty"]
-	data = list(average.values())
-	data.append(
+			diff += average[i]["transfer_qty"]
+	average.append(
 		{
 			'transfer_qty': main-diff,
-  'item_name': 'Difference',
-  'stock_uom': 'Kg',
-  'item_code': 'NA',
-  'batch_id': 'NA'}
-		
+			'item_name': 'Difference',
+			'stock_uom': 'Kg',
+			'item_code': 'NA',
+			'batch_id': 'NA'
+		}
 	)
-	data = sorted(data, key=lambda d: d['batch_id']) 
-	return data
+	average = sorted(average, key=lambda d: d['batch_id']) 
+	if main != 0:
+		for i in range(len(average)):
+			average[i]["avg_percent"] = str(flt((average[i]["transfer_qty"]/main)*100,precision))+"%"
+	return average
