@@ -53,4 +53,22 @@ def get_filtered_stock_entries(filters):
 			else:
 				average[item['item_code']]["transfer_qty"] += item["transfer_qty"]
 			average[item['item_code']]["transfer_qty"] = flt(average[item['item_code']]["transfer_qty"],precision)
-	return list(average.values())
+	main = 0
+	diff = 0
+	for item in average.values():
+		if item["item_code"] == filters.item_code:
+			main = item["transfer_qty"]
+		else:
+			diff += item["transfer_qty"]
+	data = list(average.values())
+	data.append(
+		{
+			'transfer_qty': main-diff,
+  'item_name': 'Difference',
+  'stock_uom': 'Kg',
+  'item_code': 'NA',
+  'batch_id': 'NA'}
+		
+	)
+	data = sorted(data, key=lambda d: d['batch_id']) 
+	return data

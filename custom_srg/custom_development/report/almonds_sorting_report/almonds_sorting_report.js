@@ -11,5 +11,11 @@ frappe.query_reports["Almonds Sorting Report"] = {
 			options: "Batch",
 			reqd:1,
         },
+		{
+            fieldname: 'item_code',
+            label: __('Item Code'),
+            fieldtype: "Link",
+			options: "Item",
+        },
 	]
 };
