@@ -6,6 +6,7 @@
 
 import frappe
 from frappe.utils import cint, flt
+from frappe.model.docstatus import DocStatus
 
 def execute(filters=None):
 	columns, data = [], []
@@ -50,8 +51,9 @@ def get_filtered_stock_entries(filters):
 	stock_entries = frappe.db.get_list("Stock Ledger Entry",filters={"docstatus":1,"batch_no":filters.batch_no},fields={"voucher_no"},pluck="voucher_no")
 	average = {}
 	for stock_entry in stock_entries:
-		items = frappe.db.get_list("Stock Entry",filters={"name":stock_entry,"purpose":"Repack"},fields={"items.item_code","items.item_name","items.transfer_qty","items.stock_uom","items.batch_no"})
+		items = frappe.db.get_list("Stock Entry",filters={"name":stock_entry,"purpose":"Repack","stock_entry_type":"Almonds Sorting","docstatus":DocStatus.submitted()},fields={"items.item_code","items.item_name","items.transfer_qty","items.stock_uom","items.batch_no"})
 		for item in items:
+			print(stock_entry,item['item_code'], item["transfer_qty"])
 			if item['item_code'] not in average:
 				average[item['item_code']] = item
 				item['batch_id'] = item.pop("batch_no")
